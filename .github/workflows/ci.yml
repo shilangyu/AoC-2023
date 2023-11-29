@@ -1,0 +1,23 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Lean
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          echo "${HOME}/.elan/bin" >> $GITHUB_PATH
+      
+      - name: Install Koka
+        run: |
+          curl -sSL https://github.com/koka-lang/koka/releases/latest/download/install.sh | sudo sh -s -- --minimal
+      
+      - name: Print versions
+        run: |
+          lean --version
+          koka --version
