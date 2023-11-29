@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 ALL_DAYS=( ["1"]="lean" ["2"]="koka" )
 
