@@ -35,5 +35,6 @@ Advent of code 2023 in Koka and Lean, depending on the compiler's mood.
 To run you will need [`koka`](http://koka-lang.org) and [`lean`](https://leanprover-community.github.io):
 
 ```sh
-# TODO
+./run.sh # to run all days
+./run.sh 1 10 24 # to run specific days
 ```
