@@ -7,9 +7,9 @@ args=("$@")
 DAYS=("${args[@]:-${!ALL_DAYS[@]}}")
 
 for day in "${DAYS[@]}"; do
-	printf -v padded "%02d" $day
-	
-	case "${ALL_DAYS[$day]}" in
+  printf -v padded "%02d" $day
+  
+  case "${ALL_DAYS[$day]}" in
   "lean")
     echo ""
     echo "Day $day:"
@@ -23,8 +23,8 @@ for day in "${DAYS[@]}"; do
     ;;
 
   *)
-		echo "unknown language"
+    echo "unknown language"
     exit 1
     ;;
-	esac
+  esac
 done
