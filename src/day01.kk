@@ -16,12 +16,10 @@ fun part1(input : list<string>)
   }.sum
 
 fun part2(input : list<string>)
-  fun repl(s : list<sslice>)
-    val pre = s.tail.head("".slice).string
-    val d = s.tail.tail.head("".slice).string
-    val post = s.tail.tail.tail.head("".slice).string
+  fun as-digit(s : sslice)
+    val d = s.string
     
-    pre ++ (if d == "one" then "1"
+    if d == "one" then "1"
     else if d == "two" then "2"
     else if d == "three" then "3"
     else if d == "four" then "4"
@@ -30,10 +28,11 @@ fun part2(input : list<string>)
     else if d == "seven" then "7"
     else if d == "eight" then "8"
     else if d == "nine" then "9"
-    else "") ++ post
+    else d
 
-  val mapped = input.map fn(e)
-    e.replace(regex("^(\\D*?)(one|two|three|four|five|six|seven|eight|nine)(.*)$"), repl)
-     .replace(regex("^(.*)(one|two|three|four|five|six|seven|eight|nine)(\\D*?)$"), repl)
-  part1(mapped)
+  input.map fn(e) {
+    val first = regex("^.*?(one|two|three|four|five|six|seven|eight|nine|\\d).*").exec(e).tail.head("0".slice).as-digit
+    val last = regex("^.*(one|two|three|four|five|six|seven|eight|nine|\\d).*?").exec(e).tail.head("0".slice).as-digit
+    (first ++ last).parse-int-default(0)
+  }.sum
   
