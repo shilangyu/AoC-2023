@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ALL_DAYS=( ["1"]="koka" )
+ALL_DAYS=( ["1"]="koka" ["2"]="koka" )
 
 args=("$@")
 DAYS=("${args[@]:-${!ALL_DAYS[@]}}")
@@ -19,6 +19,7 @@ for day in "${DAYS[@]}"; do
   "koka")
     echo ""
     printf "Day $day:"
+    # TODO: koka is outputing some garbage
     koka --execute --verbose=0 src/day$padded.kk
     ;;
 
