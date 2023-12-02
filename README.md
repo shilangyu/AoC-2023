@@ -6,8 +6,8 @@ Advent of code 2023 in Koka and Lean, depending on the compiler's mood.
 
 | day | part 1 | part 2 |
 | :-: | :----: | :----: |
-|  1  |   ❌   |   ❌   |
-|  2  |   ❌   |   ❌   |
+|  1  |   ✅   |   ✅   |
+|  2  |   ✅   |   ✅   |
 |  3  |   ❌   |   ❌   |
 |  4  |   ❌   |   ❌   |
 |  5  |   ❌   |   ❌   |
