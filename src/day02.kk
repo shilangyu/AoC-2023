@@ -56,16 +56,14 @@ fun parse-input() : <div,parse> game
         Just(r) -> Cons(res, r)
         Nothing -> Cons(res, [])
 
-    val res = picks().foldl(Cubes(), (+))
-    res
+    picks().foldl(Cubes(), (+))
   
   val sets = many1
     val s = set()
     choose([{ pstring("; "); () }, eof])
     s
   
-  val res = Game(identifier, sets)
-  res
+  Game(identifier, sets)
 
 
 pub fun main()
