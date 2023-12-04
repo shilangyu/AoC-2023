@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ALL_DAYS=( ["1"]="koka" ["2"]="koka" ["3"]="lean" )
+ALL_DAYS=( ["1"]="koka" ["2"]="koka" ["3"]="lean" ["4"]="lean" )
 
 args=("$@")
 DAYS=("${args[@]:-${!ALL_DAYS[@]}}")
