@@ -46,12 +46,13 @@ def Card.ofChar? : (s : Char) → Option Card
 -- a list carrying a proof of its length
 structure FixedArray (α : Type) (n : Nat) where
   data : List α
-  length : data.length == n
+  length : data.length = n
 deriving Repr
 
 def makeFixed (l : List α) (n : Nat) : Option (FixedArray α n) :=
-  if h : l.length == n then some (FixedArray.mk l h) else none
+  if h : l.length = n then some (FixedArray.mk l h) else none
 
+-- I wanted to do cool stuff with it, but without mathlib writing all the proofs takes a while, I wrote a few
 abbrev HandCards := FixedArray Card 5
 
 structure Hand where
@@ -76,7 +77,7 @@ where
     | e, [] => [(e, 1)]
     | e, (p, c) :: t => if e == p then (p, c+1) :: t else (p,c) :: add e t
 
-theorem zero_nil (l : List α) (_ : l.length == 0) : l = [] := match l with
+theorem zero_nil (l : List α) (_ : l.length = 0) : l = [] := match l with
   | [] => rfl
 
 theorem nil_FixedArray [BEq α] (l : FixedArray α 0) : l.data = [] := by
