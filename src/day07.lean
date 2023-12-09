@@ -27,6 +27,22 @@ inductive Card where
   | A
 deriving Repr, Ord, BEq
 
+inductive JokerCard where
+  | J
+  | n2
+  | n3
+  | n4
+  | n5
+  | n6
+  | n7
+  | n8
+  | n9
+  | T
+  | Q
+  | K
+  | A
+deriving Repr, Ord, BEq
+
 def Card.ofChar? : (s : Char) → Option Card
   | 'A' => A
   | 'K' => K
@@ -42,6 +58,21 @@ def Card.ofChar? : (s : Char) → Option Card
   | '3' => n3
   | '2' => n2
   | _ => none
+
+def JokerCard.ofCard
+  | Card.A => A
+  | Card.K => K
+  | Card.Q => Q
+  | Card.J => J
+  | Card.T => T
+  | Card.n9 => n9
+  | Card.n8 => n8
+  | Card.n7 => n7
+  | Card.n6 => n6
+  | Card.n5 => n5
+  | Card.n4 => n4
+  | Card.n3 => n3
+  | Card.n2 => n2
 
 -- a list carrying a proof of its length
 structure FixedArray (α : Type) (n : Nat) where
@@ -61,6 +92,13 @@ structure Hand where
   bid : Nat
 deriving Repr
 
+-- I tried making Hand generic over the Card type bug lean was erroring out
+structure JokerHand where
+  hand : List JokerCard
+  handType : HandType
+  bid : Nat
+deriving Repr
+
 instance [Repr α]: ToString α where
   toString := reprStr
 
@@ -68,7 +106,7 @@ instance [Repr α]: ToString α where
 def sort [Ord α] (l : List α) : List α :=
   l.toArray.insertionSort (fun a b => (Ord.compare a b).isLE) |> Array.toList
 
-def uniqueAmounts [BEq α] (l : FixedArray α n) : List Nat := aux l.data []
+def uniqueAmounts [BEq α] (l : List α) : List Nat := aux l []
 where
   aux (l : List α) (u : List (α × Nat)) := match l, u with
     | [], u => List.map Prod.snd u
@@ -83,16 +121,15 @@ theorem zero_nil (l : List α) (_ : l.length = 0) : l = [] := match l with
 theorem nil_FixedArray [BEq α] (l : FixedArray α 0) : l.data = [] := by
   rw [zero_nil l.data l.length]
 
-theorem nil_uniqueAmounts [BEq α] (l : FixedArray α 0) : (uniqueAmounts l).length = 0 := by
+theorem nil_uniqueAmounts [BEq α] (l : FixedArray α 0) : (uniqueAmounts l.data).length = 0 := by
   rw [uniqueAmounts, nil_FixedArray, uniqueAmounts.aux, List.map, List.length]
 
-theorem length_uniqueAmounts [BEq α] (l : FixedArray α n) : (uniqueAmounts l).length <= n := by
+theorem length_uniqueAmounts [BEq α] (l : FixedArray α n) : (uniqueAmounts l.data).length <= n := by
   induction n
   · rw [nil_uniqueAmounts, Nat.zero_eq, Nat.le_zero_eq]
   · sorry
 
-def handType (hand : HandCards) : HandType :=
-  match sort (uniqueAmounts hand) with
+def handType : (sortedFreqs : List Nat) → HandType
   | [5] => HandType.five
   | [1, 4] => HandType.four
   | [2, 3] => HandType.fullHouse
@@ -111,18 +148,41 @@ instance : Ord Hand where
     let cmp := compare a.handType b.handType
     if cmp == Ordering.eq then aux a.hand.data b.hand.data else cmp
 
+instance : Ord JokerHand where
+  compare a b :=
+    let rec aux := fun
+      | h1 :: t1, h2 :: t2 => let cmp := compare h1 h2; if cmp == Ordering.eq then aux t1 t2 else cmp
+      | _, _ => Ordering.eq
+
+    let cmp := compare a.handType b.handType
+    if cmp == Ordering.eq then aux a.hand b.hand else cmp
+
+def max [Ord α] (a b : α) := if (Ord.compare a b).isLE then b else a
+
+def bestJokerHand (hand : List JokerCard) : HandType :=
+  let withoutJokers := List.filter (· != JokerCard.J) hand
+  let jokersCount := hand.length - withoutJokers.length
+  let freqs := sort (uniqueAmounts withoutJokers)
+  let bestFreqs := (match freqs.reverse with
+    | h :: t => (h+jokersCount) :: t
+    | [] => [jokersCount]).reverse
+
+  handType bestFreqs
+
 def parseInput (s : String) : Option Hand :=
   let parts := s.splitOn " "
   let hand := parts.head!.toList |> List.filterMap Card.ofChar? |> (makeFixed · 5)
   let bid := parts.tail!.head!.toNat!
 
-  hand.map (fun e => Hand.mk e (handType e) bid)
+  hand.map (fun e => Hand.mk e (handType (sort (uniqueAmounts e.data))) bid)
 
 def part1 (input : List Hand) : Nat :=
   List.map (fun (i, e) => (i+1) * e.bid) (sort input).enum |> List.foldl (· + ·) 0
 
 def part2 (input : List Hand) : Nat :=
-  0
+  let jokerHands := List.map (fun e => let hand := (List.map JokerCard.ofCard e.hand.data); JokerHand.mk hand (bestJokerHand hand) e.bid) input
+
+  List.map (fun (i, e) => (i+1) * e.bid) (sort jokerHands).enum |> List.foldl (· + ·) 0
 
 def main : IO Unit := do
   let file ← IO.FS.readFile "input/day07.txt"
