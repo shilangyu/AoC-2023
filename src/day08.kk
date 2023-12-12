@@ -85,7 +85,7 @@ fun part1(input : network)
   val aaa = int-coord('A', 'A', 'A')
   val zzz = int-coord('Z', 'Z', 'Z')
 
-  follow-moves(input, aaa, fun(c) c == zzz)
+  follow-moves(input, aaa, fn(c) c == zzz)
 
 fun part2(input : network)
   fun starting-coords(nodes : list<node>) : list<int>
@@ -94,6 +94,6 @@ fun part2(input : network)
       Nil -> []
 
   val cycle-lengths = starting-coords(input.nodes).map fn(start)
-    follow-moves(input, start, fun(c) c.ends-with('Z'))
+    follow-moves(input, start, fn(c) c.ends-with('Z'))
 
   cycle-lengths.foldl(1, lcm)
