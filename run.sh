@@ -5,7 +5,7 @@ ALL_DAYS=(
   ["1"]="koka" ["2"]="koka" ["3"]="lean"
   ["4"]="lean" ["5"]="koka" ["6"]="lean"
   ["7"]="lean" ["8"]="koka" ["9"]="lean"
-  ["11"]="lean"
+  ["11"]="lean" ["12"]="koka"
 )
 
 args=("$@")
