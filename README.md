@@ -18,7 +18,7 @@ Advent of code 2023 in Koka and Lean, depending on the compiler's mood.
 | 10  |   ❌   |   ❌   |
 | 11  |   ✅   |   ✅   |
 | 12  |   ✅   |   ❌   |
-| 13  |   ❌   |   ❌   |
+| 13  |   ✅   |   ❌   |
 | 14  |   ❌   |   ❌   |
 | 15  |   ❌   |   ❌   |
 | 16  |   ❌   |   ❌   |
