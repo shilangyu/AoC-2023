@@ -11,6 +11,13 @@ value struct record
   springs : list<spring>
   damaged : list<int>
 
+fun (==)(a : spring, b : spring) : bool
+  match (a, b)
+    (Operational, Operational)   -> True
+    (Damaged, Damaged) -> True
+    (Unknown, Unknown) -> True
+    _              -> False
+
 fun parse-input() : <parse> record
   fun newline()
     char('\n')
@@ -42,24 +49,15 @@ pub fun main()
   println("\tPart 2:" ++ part2(input).show)
 
 
-fun arrangement-count(record : record)
-  fun count(springs : list<spring>, damaged : list<int>, streak : bool)
-    match springs
-      Cons(h, t) -> match h
-        Operational ->
-          if streak then (if damaged.head(-1) != 0 then 0 else count(t, damaged.tail, False))
-          else count(t, damaged, False)
-        Damaged ->
-          if streak then (if damaged.head(-1) == 0 then 0 else count(t, Cons(damaged.head(-1) - 1, damaged.tail), True))
-          else (if damaged.is-empty then 0 else count(t, Cons(damaged.head(-1) - 1, damaged.tail), True))
-        Unknown ->
-          if streak then (if damaged.head(-1) == 0 then count(t, damaged.tail, False)
-          else count(t, Cons(damaged.head(-1) - 1, damaged.tail), True)) else (if damaged.is-empty then count(t, [], False) /* thats where we split into two possibilities */ else (count(t, Cons(damaged.head(-1) - 1, damaged.tail), True)) + count(t, damaged, False))
-      Nil ->
-        if damaged.is-empty || (damaged.length == 1 && damaged.head(-1) == 0) then 1
-        else 0
-  
-  count(record.springs, record.damaged, False)
+fun arrangement-count(record : record) : int
+  fun count(springs : list<spring>, damaged : list<int>) : div int
+    match (springs, damaged)
+      (Nil, _) -> damaged.is-empty.int
+      (_, Nil) -> springs.all(fn(e) !(e == Damaged)).int
+      (Cons(Operational, t), _) -> count(t, damaged)
+      (Cons(Unknown, t), _) -> count(t, damaged) + count(Cons(Damaged, t), damaged)
+      (Cons(Damaged, st), Cons(dh, dt)) -> if st.length >= dh - 1 && st.take(dh - 1).all(fn(e) !(e == Operational)) && st[dh - 1].maybe(True, fn(e) !(e == Damaged)) then count(st.drop(dh), dt) else 0
+  unsafe-total({ count(record.springs, record.damaged) })
 
 fun part1(input : list<record>)
   input.foldl(0, fn(acc, curr) acc + arrangement-count(curr))
@@ -70,4 +68,4 @@ fun part2(input : list<record>)
       e.springs ++ [Unknown] ++ e.springs ++ [Unknown] ++ e.springs ++ [Unknown] ++ e.springs ++ [Unknown] ++ e.springs,
       e.damaged ++ e.damaged ++ e.damaged ++ e.damaged ++ e.damaged
     )
-  augmented.foldl(0, fn(acc, curr) acc + arrangement-count(curr))
+  part1(augmented)
