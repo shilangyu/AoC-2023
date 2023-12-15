@@ -6,6 +6,7 @@ ALL_DAYS=(
   ["4"]="lean" ["5"]="koka" ["6"]="lean"
   ["7"]="lean" ["8"]="koka" ["9"]="lean"
   ["11"]="lean" ["12"]="koka" ["13"]="lean"
+  ["15"]="koka"
 )
 
 args=("$@")
