@@ -15,7 +15,7 @@ jobs:
       
       - name: Install Koka
         run: |
-          curl -sSL https://github.com/koka-lang/koka/releases/latest/download/install.sh | sudo sh -s -- --minimal
+          curl -sSL https://github.com/koka-lang/koka/releases/download/v2.4.2/install.sh  | sudo sh -s -- --minimal
       
       - name: Print versions
         run: |
