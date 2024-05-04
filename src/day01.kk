@@ -12,7 +12,7 @@ pub fun main()
 fun part1(input : list<string>)
   input.map fn(e) {
     val digits = e.list.filter(is-digit)
-    [digits.head('0'), digits.last('0')].string.parse-int-default(0)
+    [digits.head('0'), digits.last().default('0')].string.parse-int.default(0)
   }.sum
 
 fun part2(input : list<string>)
@@ -33,6 +33,6 @@ fun part2(input : list<string>)
   input.map fn(e) {
     val first = regex("^.*?(one|two|three|four|five|six|seven|eight|nine|\\d).*").exec(e).tail.head("0".slice).as-digit
     val last = regex("^.*(one|two|three|four|five|six|seven|eight|nine|\\d).*?").exec(e).tail.head("0".slice).as-digit
-    (first ++ last).parse-int-default(0)
+    (first ++ last).parse-int.default(0)
   }.sum
   

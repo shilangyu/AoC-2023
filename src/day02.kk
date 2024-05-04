@@ -17,14 +17,11 @@ fun (+)(a : cubes, b : cubes) : cubes
 fun (<=)(a : cubes, b : cubes) : bool
   a.red <= b.red && a.green <= b.green && a.blue <= b.blue
 
-fun show(a : cubes) : string
+fun cubes/show(a : cubes) : string
   "Cubes(" ++ a.red.show ++ ", " ++ a.green.show ++ ", " ++ a.blue.show ++ ")"
 
-fun show(a : list<a>, s : (a) -> string) : string
-  "[" ++ a.map(s).join(", ") ++ "]"
-
 fun show(a : game) : string
-  "Game(" ++ a.identifier.show ++ ", " ++ show(a.sets, show) ++ ")"
+  "Game(" ++ a.identifier.show ++ ", " ++ show(a.sets) ++ ")"
 
 fun supremum(g : game) : cubes
   g.sets.foldr(Cubes(), fn(c, e) Cubes(max(c.red, e.red), max(c.green, e.green), max(c.blue, e.blue)))

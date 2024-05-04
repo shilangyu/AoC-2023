@@ -11,7 +11,7 @@ value struct record
   springs : list<spring>
   damaged : list<int>
 
-fun (==)(a : spring, b : spring) : bool
+fun spring/(==)(a : spring, b : spring) : bool
   match (a, b)
     (Operational, Operational)   -> True
     (Damaged, Damaged) -> True

@@ -32,7 +32,7 @@ Advent of code 2023 in Koka and Lean, depending on the compiler's mood.
 | 24  |   ❌   |   ❌   |
 | 25  |   ❌   |   ❌   |
 
-To run you will need [`koka`](http://koka-lang.org) and [`lean`](https://leanprover-community.github.io):
+To run you will need [`koka`](http://koka-lang.org) 3.1.1 and [`lean`](https://leanprover-community.github.io) 4.4.0:
 
 ```sh
 ./run.sh # to run all days
