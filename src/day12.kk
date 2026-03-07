@@ -1,5 +1,7 @@
 import std/os/file
 import std/os/path
+import std/data/hash
+import std/data/mutable/hashmap-mut
 import std/text/parse
 
 type spring
@@ -13,7 +15,7 @@ value struct record
 
 fun spring/(==)(a : spring, b : spring) : bool
   match (a, b)
-    (Operational, Operational)   -> True
+    (Operational, Operational) -> True
     (Damaged, Damaged) -> True
     (Unknown, Unknown) -> True
     _              -> False
@@ -24,14 +26,14 @@ fun parse-input() : <parse> record
 
   fun separated1(p, s)
     Cons(p(), many({ s(); p() }))
-  
+
   val springs = many1
     choose([
       { char('.'); Operational },
       { char('#'); Damaged },
       { char('?'); Unknown },
     ])
-  
+
   char(' ')
 
   val damaged = separated1(pnat, { char(',') })
@@ -48,18 +50,55 @@ pub fun main()
   println("\tPart 1:" ++ part1(input).show)
   println("\tPart 2:" ++ part2(input).show)
 
+alias cache-key = (springs : list<spring>, damaged : list<int>)
 
-fun arrangement-count(record : record) : int
-  fun count(springs : list<spring>, damaged : list<int>) : div int
-    match (springs, damaged)
-      (Nil, _) -> damaged.is-empty.int
-      (_, Nil) -> springs.all(fn(e) !(e == Damaged)).int
-      (Cons(Operational, t), _) -> count(t, damaged)
-      (Cons(Unknown, t), _) -> count(t, damaged) + count(Cons(Damaged, t), damaged)
-      (Cons(Damaged, st), Cons(dh, dt)) -> if st.length >= dh - 1 && st.take(dh - 1).all(fn(e) !(e == Operational)) && st[dh - 1].maybe(True, fn(e) !(e == Damaged)) then count(st.drop(dh), dt) else 0
-  unsafe-total({ count(record.springs, record.damaged) })
+fun hash-cache-key(key : cache-key, ?seed : int64) : int
+  val (_, damaged) = key
+  // just hashing damaged is approximate enough
+  damaged.list/hash(int/hash)
+
+effect cache
+  fun lookup(key : cache-key) : maybe<int>
+  fun save(key : cache-key, value : int) : ()
+
+fun arrangement-count(record : record) : <cache,div> int
+  fun count(springs : list<spring>, damaged : list<int>) : <cache,div> int
+    val key = (springs, damaged)
+    match lookup(key)
+      Just(v) -> v
+      Nothing ->
+        if springs.length == 0 then return damaged.is-empty.int
+        if damaged.length == 0 then return springs.any(fn(e) e == Damaged).xor(True).int
+
+        val val1 = match springs
+          Cons(Operational, rest) -> count(rest, damaged)
+          Cons(Unknown, rest) -> count(rest, damaged)
+          _ -> 0
+
+        val val2 = match (springs, damaged)
+          (Cons(Unknown, _), Cons(n, dt)) ->
+            if n <= springs.length && springs.take(n).all(fn(e) !(e == Operational)) && (n == springs.length || springs[n] != Just(Damaged)) then
+              count(springs.drop(n+1), dt)
+            else 0
+          (Cons(Damaged, _), Cons(n, dt)) ->
+            if n <= springs.length && springs.take(n).all(fn(e) !(e == Operational)) && (n == springs.length || springs[n] != Just(Damaged)) then
+              count(springs.drop(n+1), dt)
+            else 0
+          _ -> 0
+
+        val value = val1 + val2
+        save(key, value)
+        value
+
+  count(record.springs, record.damaged)
 
 fun part1(input : list<record>)
+  var cache := hash-map-mut(1000)
+
+  with
+    fun lookup(key) cache.get(key, hash-cache-key)
+    fun save(key, value) cache := cache.insert(key, value, hash-cache-key)
+
   input.foldl(0, fn(acc, curr) acc + arrangement-count(curr))
 
 fun part2(input : list<record>)
