@@ -14,17 +14,15 @@ DAYS=("${args[@]:-${!ALL_DAYS[@]}}")
 
 for day in "${DAYS[@]}"; do
   printf -v padded "%02d" $day
+  echo ""
+  echo "Day $day:"
 
   case "${ALL_DAYS[$day]}" in
   "lean")
-    echo ""
-    echo "Day $day:"
-    lean src/day$padded.lean --run
+    lake env lean --run src/day$padded.lean
     ;;
 
   "koka")
-    echo ""
-    printf "Day $day:"
     # TODO: koka is outputing some garbage
     koka -i./src/std --execute --verbose=0 src/day$padded.kk
     ;;
