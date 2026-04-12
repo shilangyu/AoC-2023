@@ -8,12 +8,12 @@ instance : ToString Race where
 
 
 def extractNumbers (s : String) : List Nat :=
-  List.map (String.toNat!) (List.filter (· != "") (List.map String.trim (s.splitOn " ")))
+  List.map (String.toNat!) (List.filter (· != "") (List.map (String.Slice.toString ∘ String.trimAscii) (s.splitOn " ")))
 
 def parseInput (s : String) : List Race :=
-  let lines := s.split (· == '\n')
-  let times := lines.head!.splitOn ":" |> List.getLast! |> extractNumbers
-  let bests := lines.tail!.head!.splitOn ":" |> List.getLast! |> extractNumbers
+  let lines := s.split (· == '\n') |> Std.Iter.toList
+  let times := lines.head!.toString.splitOn ":" |> List.getLast! |> extractNumbers
+  let bests := lines.tail!.head!.toString.splitOn ":" |> List.getLast! |> extractNumbers
 
   List.zipWith Race.mk times bests
 

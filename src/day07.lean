@@ -126,8 +126,9 @@ theorem nil_uniqueAmounts [BEq α] (l : FixedArray α 0) : (uniqueAmounts l.data
 
 theorem length_uniqueAmounts [BEq α] (l : FixedArray α n) : (uniqueAmounts l.data).length <= n := by
   induction n
-  · rw [nil_uniqueAmounts, Nat.zero_eq, Nat.le_zero_eq]
-  · sorry
+  · rw [nil_uniqueAmounts, Nat.le_zero_eq]
+  · constructor
+    sorry
 
 def handType : (sortedFreqs : List Nat) → HandType
   | [5] => HandType.five
@@ -177,12 +178,12 @@ def parseInput (s : String) : Option Hand :=
   hand.map (fun e => Hand.mk e (handType (sort (uniqueAmounts e.data))) bid)
 
 def part1 (input : List Hand) : Nat :=
-  List.map (fun (i, e) => (i+1) * e.bid) (sort input).enum |> List.foldl (· + ·) 0
+  List.map (fun (e, i) => (i+1) * e.bid) (sort input).zipIdx |> List.foldl (· + ·) 0
 
 def part2 (input : List Hand) : Nat :=
   let jokerHands := List.map (fun e => let hand := (List.map JokerCard.ofCard e.hand.data); JokerHand.mk hand (bestJokerHand hand) e.bid) input
 
-  List.map (fun (i, e) => (i+1) * e.bid) (sort jokerHands).enum |> List.foldl (· + ·) 0
+  List.map (fun (e, i) => (i+1) * e.bid) (sort jokerHands).zipIdx |> List.foldl (· + ·) 0
 
 def main : IO Unit := do
   let file ← IO.FS.readFile "input/day07.txt"

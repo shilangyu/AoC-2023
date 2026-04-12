@@ -8,15 +8,15 @@ instance : ToString ScratchCard where
 
 
 def extractNumbers (s : String) : List Nat :=
-  List.map (String.toNat!) (List.filter (· != "") (List.map String.trim (s.splitOn " ")))
+  List.map (String.toNat!) (List.filter (· != "") (List.map (String.Slice.toString ∘ String.trimAscii) (s.splitOn " ")))
 
 def parseInput (s : String) : List ScratchCard :=
-  let lines := s.split (· == '\n')
+  let lines := s.split (· == '\n') |> Std.Iter.toList
   let numbers := List.map (
-    fun e => e.splitOn ": " |>
-    (List.get! · 1) |>
+    fun e => e.toString.splitOn ": " |>
+    (·[1]!) |>
     (String.splitOn · " | ") |>
-    (fun e => (List.get! e 0 |> String.trim, List.get! e 1 |> String.trim))) lines
+    (fun e => (e[0]! |> String.trimAscii |> String.Slice.toString, e[1]! |> String.trimAscii |> String.Slice.toString))) lines
 
   List.map (fun (a, b) => ScratchCard.mk (extractNumbers a) (extractNumbers b)) numbers
 

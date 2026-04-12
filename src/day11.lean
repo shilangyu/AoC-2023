@@ -4,7 +4,7 @@ inductive Space where
 deriving Repr, BEq, Inhabited
 
 instance : ToString (List (List Space)) where
-  toString := (String.intercalate "\n") ∘ List.map (String.mk ∘ List.map (fun | Space.galaxy => '#' | Space.empty => '.'))
+  toString := (String.intercalate "\n") ∘ List.map (String.ofList ∘ List.map (fun | Space.galaxy => '#' | Space.empty => '.'))
 
 partial def transpose [Inhabited α] : List (List α) → List (List α)
   | []
@@ -16,7 +16,7 @@ def parseInput (s : String) : List Space :=
   List.map (fun | '#' => Space.galaxy | _ => Space.empty) s.toList
 
 def emptyRows (l : List (List Space)) : List Nat :=
-  List.filterMap (fun (i, e) => if List.all e (BEq.beq Space.empty) then some i else none) l.enum
+  List.filterMap (fun (e, i) => if List.all e (BEq.beq Space.empty) then some i else none) l.zipIdx
 
 def flatten (l : List (List α)) : List α := List.foldl List.append List.nil l
 
@@ -37,10 +37,10 @@ def expandedDistances (e : (Nat × Nat)) (H₀ : Nat) (emptyRows : List Nat) (em
   | [] => 0
 
 def galaxyPositions (l : List (List Space)) := List.map (
-  fun (i, e) => List.map (fun
-    | (_, Space.empty) => none
-    | (j, Space.galaxy) => some (i, j)
-  ) e.enum) l.enum |> flatten |> List.filterMap id
+  fun (e, i) => List.map (fun
+    | (Space.empty, _) => none
+    | (Space.galaxy, j) => some (i, j)
+  ) e.zipIdx) l.zipIdx |> flatten |> List.filterMap id
 
 def expandingDistance (input : List (List Space)) (H₀ : Nat) : Nat :=
   let r := emptyRows input

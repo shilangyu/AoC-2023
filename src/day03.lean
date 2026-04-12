@@ -16,17 +16,17 @@ instance : ToString Number where
   toString := reprStr
 
 def extractNumbers (s : String) (row : Nat) : List Number :=
-  let numbers := List.foldl (fun acc (i, c) => if c.isDigit then (match acc.getLast? with
+  let numbers := List.foldl (fun acc (c, i) => if c.isDigit then (match acc.getLast? with
     | some l => acc.dropLast ++ (if l.span.snd != i - 1 then
         [l, Number.mk (c.val - '0'.val).toNat row (i, i)]
       else
         [{l with num := l.num * 10 + (c.val - '0'.val).toNat, span := (l.span.fst, i)}])
     | none => [Number.mk (c.val - '0'.val).toNat row (i, i)]
-  ) else acc) List.nil s.data.enum
+  ) else acc) List.nil s.toList.zipIdx
   numbers
 
 def extractSymbols (s : String) (row : Nat) : List Symbol :=
-  List.foldl (fun acc (i, c) => if !c.isDigit && c != '.' then acc ++ [Symbol.mk row i (c == '*')] else acc) List.nil s.data.enum
+  List.foldl (fun acc (c, i) => if !c.isDigit && c != '.' then acc ++ [Symbol.mk row i (c == '*')] else acc) List.nil s.toList.zipIdx
 
 def inSpan (span : Nat × Nat) (n : Nat)  : Bool :=
   n >= span.fst && n <= span.snd
@@ -54,9 +54,9 @@ def part2 (numbers : List Number) (symbols : List Symbol) : Nat :=
 
 def main : IO Unit := do
   let file ← IO.FS.readFile "input/day03.txt"
-  let lines := file.split (· == '\n')
-  let numbers := List.map (fun (i, e) => extractNumbers e i) lines.enum |> flatten
-  let symbols := List.map (fun (i, e) => extractSymbols e i) lines.enum |> flatten
+  let lines := file.split (· == '\n') |> Std.Iter.toList
+  let numbers := List.map (fun (e, i) => extractNumbers e.toString i) lines.zipIdx |> flatten
+  let symbols := List.map (fun (e, i) => extractSymbols e.toString i) lines.zipIdx |> flatten
 
   println! s!"\tPart 1: {(part1 numbers symbols)}"
   println! s!"\tPart 2: {(part2 numbers symbols)}"

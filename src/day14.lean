@@ -5,7 +5,7 @@ inductive Space where
 deriving Repr, Inhabited, BEq
 
 instance : ToString (List (List Space)) where
-  toString := (String.intercalate "\n") ∘ List.map (String.mk ∘ List.map (fun | Space.fixed => '#' | Space.empty => '.' | Space.rolling => 'O'))
+  toString := (String.intercalate "\n") ∘ List.map (String.ofList ∘ List.map (fun | Space.fixed => '#' | Space.empty => '.' | Space.rolling => 'O'))
 
 
 partial def transpose [Inhabited α] : List (List α) → List (List α)
@@ -67,7 +67,7 @@ where
   acc mem curr :=
     let new := cycle curr
     match indexOf new mem with
-    | some i => load (List.get! mem (i + (1000000000 - i) % (List.length mem - i)))
+    | some i => load (mem[i + (1000000000 - i) % (List.length mem - i)]!)
     | none => acc (mem ++ [new]) new
 
 def main : IO Unit := do
